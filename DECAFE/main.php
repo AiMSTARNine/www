@@ -1,3 +1,13 @@
+<?php
+    //  session_start();
+     if(empty($_SESSION['username_decafe'])){
+        header('location:login');
+     }
+
+    include "proses/connect.php";
+     $query = mysqli_query($conn, "SELECT * FROM tb_user WHERE username = '$_SESSION[username_decafe]'");
+     $hasil = mysqli_fetch_array($query);
+?>   
 <!doctype html>
 <html lang="en">
 
@@ -9,7 +19,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 
-<body style="height: 3000px">
+
+<body>
   <!-- Header -->
   <?php include "header.php";?>
   <!-- End Header -->
@@ -26,11 +37,30 @@
       <!-- End Content -->
     </div>
 
-    <div class="fixed-bottom text-center mb-2">
+    <div class="fixed-bottom text-center bg-light py-2">
        Copyright 2026 Faris AiMSTAR
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <script>
+  (() => {
+    'use strict'
+
+    const forms = document.querySelectorAll('.needs-validation')
+
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>
+  
 </body>
 
 </html>

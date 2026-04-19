@@ -1,3 +1,9 @@
+<?php
+    //  session_start();
+     if(!empty($_SESSION['username_decafe'])){
+        header('location:home');
+     }
+?>   
 <!DOCTYPE html>
 <html lang="en">
 
