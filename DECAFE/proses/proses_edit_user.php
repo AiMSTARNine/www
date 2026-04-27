@@ -12,16 +12,15 @@ if (!empty($_POST['input_user_validate'])){
         $select = mysqli_query($conn, "SELECT * FROM tb_user WHERE username='$username'");
     if (mysqli_num_rows($select) > 0) {
         $message = '<script>alert("Username yang dimasukan Sudah Ada!")
-                    window.location="../user"</script>
-                    </script>';
+                    window.location="../user"</script>';
     } else {
     $query = mysqli_query($conn, "UPDATE tb_user SET nama='$name', username='$username', level='$level', nohp='$nohp', alamat='$alamat' WHERE id='$id'");
     if ($query){
         $message = '<script>alert("Data User Berhasil Dimasukkan!");
-                    window.location="../user"</script>
-                    </script>';
+                    window.location="../user"</script>';
     } else{
-        $message = '<script>alert("Data User Gagal Dimasukkan!")</script>';
+        $message = '<script>alert("Data User Gagal Dimasukkan!")
+                    window.location="../user"</script>';
     }
     }
 }echo $message;

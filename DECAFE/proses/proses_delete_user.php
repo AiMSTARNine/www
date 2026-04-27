@@ -6,10 +6,10 @@ if (!empty($_POST['input_user_validate'])){
     $query = mysqli_query($conn, "DELETE FROM tb_user WHERE id='$id'");
     if ($query){
         $message = '<script>alert("Data User Berhasil Dihapus!");
-                    window.location="../user"</script>
-                    </script>';
+                    window.location="../user"</script>';
     } else{
-        $message = '<script>alert("Data User Gagal Dihapus!")</script>';
+        $message = '<script>alert("Data User Gagal Dihapus!");
+                    window.location="../user"</script>';
     }
 }echo $message;
 ?>
