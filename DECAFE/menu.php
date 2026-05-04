@@ -209,7 +209,7 @@ $select_kat_menu = mysqli_query($conn, "SELECT id_kat_menu,kategori_menu FROM tb
 
         <!-- Awal Modal Edit -->
 
-        <div class="modal fade" id="ModalEdit<?php echo $row['id'] ?>">" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="ModalEdit<?php echo $row['id'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-xl modal-fullscreen-md-down">
             <div class="modal-content">
               <div class="modal-header">
@@ -367,7 +367,7 @@ $select_kat_menu = mysqli_query($conn, "SELECT id_kat_menu,kategori_menu FROM tb
                 <td><?php echo $row['keterangan'] ?></td>
                 <td><?php echo ($row['jenis_menu'] == 1) ? 'Makanan' : 'Minuman'; ?></td>
                 <td><?php echo $row['kategori_menu'] ?></td>
-                <td><?php echo $row['harga'] ?></td>
+                <td><?php echo number_format( $row['harga'] , 0, ',', '.'); ?></td>
                 <td><?php echo $row['stok'] ?></td>
                 <td>
                   <div class="d-flex">
