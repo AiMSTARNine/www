@@ -336,8 +336,8 @@ $select_kat_menu = mysqli_query($conn, "SELECT id_kat_menu,kategori_menu FROM tb
       <?php
                           }
       ?>
-      <div class="table-responsive">
-        <table class="table table-hover">
+      <div class="table-responsive mt-3">
+        <table class="table table-hover"  id="example">
           <thead>
             <tr class="text-nowrap">
               <th scope="col">No</th>
@@ -389,3 +389,4 @@ $select_kat_menu = mysqli_query($conn, "SELECT id_kat_menu,kategori_menu FROM tb
     </div>
   </div>
 </div>
+

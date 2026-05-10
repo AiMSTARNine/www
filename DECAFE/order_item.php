@@ -3,17 +3,18 @@ include "proses/connect.php";
 
 // Validasi parameter GET
 if (empty($_GET['order']) || empty($_GET['meja']) || empty($_GET['pelanggan'])) {
-    echo "<script>window.location.href='?x=order'</script>";
-    exit();
+  echo "<script>window.location.href='?x=order'</script>";
+  exit();
 }
 
 $kode = $_GET['order'];
 $meja = $_GET['meja'];
 $pelanggan = $_GET['pelanggan'];
 
-$query = mysqli_query($conn, "SELECT *, SUM(harga*jumlah) AS harganya FROM tb_list_order
+$query = mysqli_query($conn, "SELECT *, SUM(harga*jumlah) AS harganya, tb_order.waktu_order FROM tb_list_order
   LEFT JOIN tb_order ON tb_order.id_order = tb_list_order.kode_order
   LEFT JOIN tb_daftar_menu ON tb_daftar_menu.id = tb_list_order.menu
+  LEFT JOIN tb_bayar ON tb_bayar.id_bayar = tb_order.id_order
   GROUP BY id_list_order
   HAVING tb_list_order.kode_order = '$kode'");
 
@@ -297,7 +298,7 @@ while ($m = mysqli_fetch_assoc($query_menu)) {
                   </table>
                 </div>
 
-                <span class="text-danger fs-5 fw-semibold">   Apakah Anda yakin ingin melakukan pembayaran ini?</span>
+                <span class="text-danger fs-5 fw-semibold"> Apakah Anda yakin ingin melakukan pembayaran ini?</span>
                 <form class="needs-validation" novalidate action="proses/proses_bayar.php" method="POST">
 
                   <input type="hidden" name="kode_order" value="<?php echo $kode; ?>">
@@ -351,14 +352,19 @@ while ($m = mysqli_fetch_assoc($query_menu)) {
                   <td><?php echo $row['nama_menu'] ?></td>
                   <td><?php echo number_format($row['harga'], 0, ',', '.'); ?></td>
                   <td><?php echo $row['jumlah'] ?></td>
-                  <td><?php echo $row['status'] ?></td>
+                  <td><?php if ($row['status'] == 1) {
+                        echo "<span class='badge text-bg-warning'>Masuk Ke Dapur</span>";
+                      } elseif ($row['status'] == 2) {
+                        echo "<span class='badge text-bg-primary'>Siap Disajikan</span>";
+                      } ?></td>
                   <td><?php echo $row['catatan'] ?></td>
                   <td><?php echo number_format($row['harganya'], 0, ',', '.'); ?></td>
 
                   <td>
                     <div class="d-flex">
-                      <button class="btn btn-warning btn-sm me-1" data-bs-toggle="modal" data-bs-target="#ModalEdit<?php echo $row['id_list_order'] ?>"><i class="bi bi-pencil-square"></i></button>
-                      <button class="btn btn-danger btn-sm me-1" data-bs-toggle="modal" data-bs-target="#ModalDelete<?php echo $row['id_list_order'] ?>"><i class="bi bi-trash"></i></button>
+                      <button class="<?php echo (!empty($row['id_bayar'])) ? "btn btn-secondary btn-sm me-1 disabled" : "btn btn-warning btn-sm me-1"; ?>" data-bs-toggle="modal" data-bs-target="#ModalEdit<?php echo $row['id_list_order'] ?>"><i class="bi bi-pencil-square"></i></button>
+
+                      <button class="<?php echo (!empty($row['id_bayar'])) ? "btn btn-secondary btn-sm me-1 disabled" : "btn btn-danger btn-sm me-1"; ?>" data-bs-toggle="modal" data-bs-target="#ModalDelete<?php echo $row['id_list_order'] ?>"><i class="bi bi-trash"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -382,9 +388,105 @@ while ($m = mysqli_fetch_assoc($query_menu)) {
       }
       ?>
       <div>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tambahItem"><i class="bi bi-bag-plus-fill"></i> Tambah Item </button>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bayar"> <i class="bi bi-cash-coin"></i> Bayar </button>
+        <button class="<?php echo (!empty($row['id_bayar'])) ? "btn btn-secondary disabled" : "btn btn-success" ?>" data-bs-toggle="modal" data-bs-target="#tambahItem"><i class="bi bi-bag-plus-fill"></i> Tambah Item </button>
+        <button class="<?php echo (!empty($row['id_bayar'])) ? "btn btn-secondary disabled" : "btn btn-primary" ?>" data-bs-toggle="modal" data-bs-target="#bayar"> <i class="bi bi-cash-coin"></i> Bayar </button>
+        <button onclick="printStruk()" class="btn btn-info"><i class="bi bi-calculator-fill"></i> Cetak Struk</button>
       </div>
     </div>
   </div>
 </div>
+
+<div id="strukContent" class="d-none">
+  <style>
+    #struk {
+      font-family: 'Arial', sans-serif;
+      font-size: 16px;
+      max-width: 300px;
+      border: 1px solid #3f3d3f98;
+      padding: 10px;
+      width: 70mm;
+    }
+
+    #struk table {
+      font-size: 18px;
+    }
+    #struk h2{
+      text-align: center;
+      color: #3f3d3f98;
+    }
+    #struk p{
+      margin: 5px 0;
+    }
+    #struk table {
+      font-size: 16px;
+      border-collapse: collapse;
+      margin-top: 10px;
+      width: 100%;
+    }
+    #struk th, #struk td{
+      border: 1px solid #3f3d3f98;
+      padding: 8px;
+      text-align: left;
+    }
+    #struk .total{
+      font-weight: bold;
+    }
+  </style>
+  <div id="struk">
+    <h2> Struk Pembayaran De'Cafe</h2>
+    <p> Kode Order: <?php echo $kode ?></p>
+    <p> Meja: <?php echo $meja ?></p>
+    <p> Pelanggan: <?php echo $pelanggan ?></p>
+    <P> Waktu order: <?php echo date('d/m/Y H:i:s', strtotime($result[0]['waktu_order'])) ?></P>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Menu</th>
+          <th>Harga</th>
+          <th>Qty</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+        $total = 0;
+        foreach ($result as $row) {
+        ?>
+          <tr>
+            <td><?php echo $row['nama_menu'] ?></td>
+            <td><?php echo number_format($row['harga'], 0, ',', '.'); ?></td>
+            <td><?php echo $row['jumlah'] ?></td>
+            <td><?php echo number_format($row['harganya'], 0, ',', '.'); ?></td>
+
+          </tr>
+        <?php
+          $total += $row['harganya'];
+        }
+
+        ?>
+        <tr class="total">
+          <td colspan="3">
+            Total Harga
+          </td>
+          <td class="fw-bold">
+            <?php echo number_format($total, 0, ',', '.'); ?>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function printStruk() {
+    var strukContent = document.getElementById("strukContent").innerHTML;
+
+    var printFrame = document.createElement("iframe");
+    printFrame.style.display = "none";
+    document.body.appendChild(printFrame);
+    printFrame.contentDocument.write(strukContent);
+    printFrame.contentWindow.print();
+    document.body.removeChild(printFrame);
+  }
+</script>

@@ -74,7 +74,7 @@
                 Login
             </button>
 
-            <p class="mt-4 text-muted">© 2025–2026</p>
+            <p class="mt-4 text-muted">© 2025 - <?php echo date('Y'); ?> De'Cafe</p>
         </form>
     </div>
 
